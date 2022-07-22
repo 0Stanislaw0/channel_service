@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  service:
+    build:
+        context: project
+        dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_started
+
+  db:
+    image: postgres:12.0-alpine
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qwerty19ytrewq
+      - POSTGRES_DB=db
+
+
+
+
