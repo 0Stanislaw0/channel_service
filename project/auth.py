@@ -9,8 +9,8 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly',
           'https://www.googleapis.com/auth/drive.metadata.readonly']
 
 SERVICE_ACCOUNT_FILE = 'credentials.json'
-SAMPLE_SPREADSHEET_ID = '1G-MFMLZh4SPuFKPBK31YLahFoklKVCMgy0aAqUiuwDI'
-SAMPLE_RANGE_NAME = 'A2:Z1000'
+SPREADSHEET_ID = '1G-MFMLZh4SPuFKPBK31YLahFoklKVCMgy0aAqUiuwDI'
+RANGE = 'A2:Z1000'
 
 
 def credentials() -> Credentials:
@@ -21,15 +21,17 @@ def credentials() -> Credentials:
 
 def service_drive(creds: Credentials) -> datetime:
     date = None
-    files = []
     service_drive = build('drive', 'v3', credentials=creds)
     response = service_drive.files().list(
         pageSize=5,
         fields="nextPageToken, files(*)").execute()
-         # TODO: Нужно конректно с нашего sheets  тянуть время
-    for file in response.get('files', []):
-        date = datetime.fromisoformat(file.get("modifiedTime")[:-1])
-    files.extend(response.get('files', []))
+
+    for file in response.get('files', {}):
+        sheet_id = file.get("id",None)
+        if sheet_id ==SPREADSHEET_ID:
+            date = datetime.fromisoformat(file.get("modifiedTime")[:-1])
+            break
+
     if not date:
         raise ValueError("Не удалось получить дату изменения файла")
     else:
@@ -39,8 +41,8 @@ def service_drive(creds: Credentials) -> datetime:
 def service_sheets(creds: Credentials) -> List[List]:
     service_sheet = build('sheets', 'v4', credentials=creds)
     sheet = service_sheet.spreadsheets()
-    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                range=SAMPLE_RANGE_NAME).execute()
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
+                                range=RANGE).execute()
 
     values = result.get('values', [])
 
