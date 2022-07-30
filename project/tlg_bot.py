@@ -4,7 +4,8 @@ from database import get_delivery_times, write_user, get_users
 from loguru import logger
 import telebot
 
-bot = telebot.TeleBot("5460284921:AAF8U97n3y5Qe31qQgUtN3tBbgo_Mw3oo0g")
+
+bot = telebot.TeleBot("your_token")
 
 
 @bot.message_handler(content_types=['text'])
@@ -30,5 +31,7 @@ def send():
     for user in users:
         bot.send_message(user, "\n".join(delivery_time))
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
+
     bot.polling(none_stop=True, interval=0)

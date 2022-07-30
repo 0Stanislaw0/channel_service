@@ -27,8 +27,8 @@ def service_drive(creds: Credentials) -> datetime:
         fields="nextPageToken, files(*)").execute()
 
     for file in response.get('files', {}):
-        sheet_id = file.get("id",None)
-        if sheet_id ==SPREADSHEET_ID:
+        sheet_id = file.get("id", None)
+        if sheet_id == SPREADSHEET_ID:
             date = datetime.fromisoformat(file.get("modifiedTime")[:-1])
             break
 

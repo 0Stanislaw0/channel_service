@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import List, Any
 
-from httplib2 import FailedToDecompressContent
-
 from googleapiclient.errors import HttpError
 from loguru import logger
 from requests import HTTPError
@@ -12,13 +10,13 @@ from auth import service_drive, service_sheets, credentials
 from currency import get_currency
 from database import get_last_modified_db, write_sheet
 from proccesing_data import processing_data
-from tlg_bot import bot, send
+from tlg_bot import send
 
 logger.add("main.log", format="{time} {level} {message}", level="DEBUG",
            rotation="100 Mb", compression="zip")
 
 
-def main(first_start:bool = None):
+def main(first_start: bool = None):
     creds, date, values, actual_currency = None, None, None, None
 
     try:
@@ -28,12 +26,6 @@ def main(first_start:bool = None):
 
     try:
         date: datetime = service_drive(creds).replace(microsecond=0)
-    except HttpError as he:
-        logger.error(f"{he}")
-    except ValueError as ve:
-        logger.error(f"{ve}")
-
-    try:
         values: List[List] = service_sheets(creds)
     except HttpError as he:
         logger.error(f"{he}")
@@ -50,7 +42,6 @@ def main(first_start:bool = None):
     last_modified_db: datetime = get_last_modified_db()
     if first_start:
         write_sheet(valid_data, date.strftime('%d-%m-%Y %H:%M:%S'))
-        first_start = False
     elif not first_start and last_modified_db < date:
         write_sheet(valid_data, date.strftime('%d-%m-%Y %H:%M:%S'))
         send()

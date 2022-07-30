@@ -12,23 +12,19 @@ def processing_data(data: List[List], currency: float) -> List[List]:
         error = 0
         try:
             row[1] = int(row[1])
-        except ValueError:
-            logger.error(f"Неверный формат данных в строке: {row[1]}, {row}")
-            error += 1
-        try:
             row[2] = float(row[2])
+            if re.findall(pattern_date, row[3]):
+                row[3] = row[3].replace(".", "-")
+            else:
+                raise ValueError
+
         except ValueError:
-            logger.error(f"Неверный формат данных в строке: {row[2]}, {row}")
-            error += 1
-        if re.findall(pattern_date, row[3]):
-            row[3] = row[3].replace(".", "-")
-        else:
-            logger.error(f"Неверный формат данных в строке: {row[3]}, {row}")
+            logger.error(f"Неверный формат данных в строке: {row}")
             error += 1
 
         if error > 0:
-            logger.error(f"Найдено  ошибок {error}. "
-                         f"Строка записана в бд не будет")
+            logger.error(f"Найдено  ошибок {error}."
+                         f"Строка {row} записана в бд не будет")
         else:
             ruble: float = currency * float(row[2])
             row.append(ruble)
